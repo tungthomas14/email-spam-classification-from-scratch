@@ -79,16 +79,31 @@ def tokenize_texts(texts):
     return tokenized_texts
 
 
+def build_vocabulary(tokenized_texts):
+    """Create a token-to-index dictionary from tokenized texts."""
+    vocabulary = {}
+
+    for tokens in tokenized_texts:
+        for token in tokens:
+            if token not in vocabulary:
+                vocabulary[token] = len(vocabulary)
+
+    return vocabulary
+
+
 if __name__ == "__main__":
     texts, labels = read_data()
     y = encode_labels(labels)
     lowercased_texts = lowercase_texts(texts)
     cleaned_texts = remove_punctuation_texts(lowercased_texts)
     tokenized_texts = tokenize_texts(cleaned_texts)
+    vocabulary = build_vocabulary(tokenized_texts)
 
     print(f"Number of samples: {len(texts)}")
+    print(f"Vocabulary size: {len(vocabulary)}")
     print(f"First text: {texts[0]}")
     print(f"First lowercased text: {lowercased_texts[0]}")
     print(f"First cleaned text: {cleaned_texts[0]}")
     print(f"First tokens: {tokenized_texts[0]}")
+    print(f"First 10 vocabulary items: {list(vocabulary.items())[:10]}")
     print(f"First label: {labels[0]} -> {y[0]}")
