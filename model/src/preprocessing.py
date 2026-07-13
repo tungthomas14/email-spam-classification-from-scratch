@@ -1,4 +1,5 @@
 import csv
+import random
 import re
 from pathlib import Path
 
@@ -81,22 +82,58 @@ def tokenize_texts(texts):
     return tokenized_texts
 
 
+def train_test_split(features, labels, test_size=0.2, seed=42):
+    """Split features and labels into train and test sets."""
+    if len(features) != len(labels):
+        raise ValueError("features and labels must have the same length")
+
+    indices = list(range(len(features)))
+    random_generator = random.Random(seed)
+    random_generator.shuffle(indices)
+
+    test_count = int(len(features) * test_size)
+    test_indices = indices[:test_count]
+    train_indices = indices[test_count:]
+
+    X_train = []
+    X_test = []
+    y_train = []
+    y_test = []
+
+    for index in train_indices:
+        X_train.append(features[index])
+        y_train.append(labels[index])
+
+    for index in test_indices:
+        X_test.append(features[index])
+        y_test.append(labels[index])
+
+    return X_train, X_test, y_train, y_test
+
+
 if __name__ == "__main__":
     texts, labels = read_data()
     y = encode_labels(labels)
     lowercased_texts = lowercase_texts(texts)
     cleaned_texts = remove_punctuation_texts(lowercased_texts)
     tokenized_texts = tokenize_texts(cleaned_texts)
-    vocabulary = build_vocabulary(tokenized_texts)
-    X = texts_to_bow(tokenized_texts, vocabulary)
+    tokenized_train, tokenized_test, y_train, y_test = train_test_split(tokenized_texts, y)
+    vocabulary = build_vocabulary(tokenized_train)
+    X_train = texts_to_bow(tokenized_train, vocabulary)
+    X_test = texts_to_bow(tokenized_test, vocabulary)
 
     print(f"Number of samples: {len(texts)}")
+    print(f"Train samples: {len(X_train)}")
+    print(f"Test samples: {len(X_test)}")
     print(f"Vocabulary size: {len(vocabulary)}")
-    print(f"Bag-of-Words shape: {len(X)} x {len(X[0])}")
+    print(f"Train Bag-of-Words shape: {len(X_train)} x {len(X_train[0])}")
+    print(f"Test Bag-of-Words shape: {len(X_test)} x {len(X_test[0])}")
+    print(f"Train spam count: {sum(y_train)}")
+    print(f"Test spam count: {sum(y_test)}")
     print(f"First text: {texts[0]}")
     print(f"First lowercased text: {lowercased_texts[0]}")
     print(f"First cleaned text: {cleaned_texts[0]}")
     print(f"First tokens: {tokenized_texts[0]}")
     print(f"First 10 vocabulary items: {list(vocabulary.items())[:10]}")
-    print(f"First vector first 10 values: {X[0][:10]}")
+    print(f"First train vector first 10 values: {X_train[0][:10]}")
     print(f"First label: {labels[0]} -> {y[0]}")
