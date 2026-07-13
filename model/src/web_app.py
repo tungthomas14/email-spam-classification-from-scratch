@@ -1,4 +1,5 @@
 import json
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
@@ -18,6 +19,7 @@ from vectorizer import build_vocabulary, texts_to_bow
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 WEB_DIR = PROJECT_DIR / "web"
+DEFAULT_THRESHOLD = 0.55
 
 
 def preprocess_messages(messages):
@@ -42,10 +44,10 @@ def train_classifier():
     X_train = texts_to_bow(tokenized_train, vocabulary)
     X_test = texts_to_bow(tokenized_test, vocabulary)
 
-    model = LogisticRegression(learning_rate=0.1, epochs=100)
+    model = LogisticRegression(learning_rate=0.1, epochs=100, class_weight="balanced")
     model.fit(X_train, y_train)
 
-    test_predictions = model.predict(X_test)
+    test_predictions = model.predict(X_test, threshold=DEFAULT_THRESHOLD)
 
     metadata = {
         "train_samples": int(X_train.shape[0]),
@@ -53,6 +55,7 @@ def train_classifier():
         "vocabulary_size": len(vocabulary),
         "initial_loss": float(model.loss_history[0]),
         "final_loss": float(model.loss_history[-1]),
+        "threshold": DEFAULT_THRESHOLD,
         "test_accuracy": float(accuracy(y_test, test_predictions)),
         "test_precision": float(precision(y_test, test_predictions)),
         "test_recall": float(recall(y_test, test_predictions)),
@@ -107,7 +110,7 @@ class SpamClassifierHandler(BaseHTTPRequestHandler):
         try:
             payload = self.read_json_body()
             message = payload.get("message", "")
-            threshold = float(payload.get("threshold", 0.5))
+            threshold = float(payload.get("threshold", DEFAULT_THRESHOLD))
 
             if not message.strip():
                 self.send_json({"error": "Message is required"}, status=400)
@@ -190,8 +193,8 @@ class SpamClassifierHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    host = "127.0.0.1"
-    port = 8000
+    host = "0.0.0.0"
+    port = int(os.environ.get("PORT", "8000"))
     server = ThreadingHTTPServer((host, port), SpamClassifierHandler)
     print(f"Server running at http://{host}:{port}", flush=True)
     server.serve_forever()

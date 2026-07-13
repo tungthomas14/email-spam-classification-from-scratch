@@ -14,3 +14,6 @@ env/
 .ruff_cache/
 
 *.log
+
+node_modules/
+dist/

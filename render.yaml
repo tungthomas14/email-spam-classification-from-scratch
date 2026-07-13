@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: email-spam-classifier
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python model/src/web_app.py
+    healthCheckPath: /
+    autoDeployTrigger: commit
