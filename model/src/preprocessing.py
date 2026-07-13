@@ -2,6 +2,8 @@ import csv
 import re
 from pathlib import Path
 
+from vectorizer import build_vocabulary, texts_to_bow
+
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_DATA_PATH = PROJECT_DIR / "data" / "spam.csv"
@@ -79,18 +81,6 @@ def tokenize_texts(texts):
     return tokenized_texts
 
 
-def build_vocabulary(tokenized_texts):
-    """Create a token-to-index dictionary from tokenized texts."""
-    vocabulary = {}
-
-    for tokens in tokenized_texts:
-        for token in tokens:
-            if token not in vocabulary:
-                vocabulary[token] = len(vocabulary)
-
-    return vocabulary
-
-
 if __name__ == "__main__":
     texts, labels = read_data()
     y = encode_labels(labels)
@@ -98,12 +88,15 @@ if __name__ == "__main__":
     cleaned_texts = remove_punctuation_texts(lowercased_texts)
     tokenized_texts = tokenize_texts(cleaned_texts)
     vocabulary = build_vocabulary(tokenized_texts)
+    X = texts_to_bow(tokenized_texts, vocabulary)
 
     print(f"Number of samples: {len(texts)}")
     print(f"Vocabulary size: {len(vocabulary)}")
+    print(f"Bag-of-Words shape: {len(X)} x {len(X[0])}")
     print(f"First text: {texts[0]}")
     print(f"First lowercased text: {lowercased_texts[0]}")
     print(f"First cleaned text: {cleaned_texts[0]}")
     print(f"First tokens: {tokenized_texts[0]}")
     print(f"First 10 vocabulary items: {list(vocabulary.items())[:10]}")
+    print(f"First vector first 10 values: {X[0][:10]}")
     print(f"First label: {labels[0]} -> {y[0]}")
