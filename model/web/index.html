@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Email Spam Classifier</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <div class="header-row">
+          <div>
+            <p class="eyebrow">Logistic Regression</p>
+            <h1>Email Spam Classifier</h1>
+          </div>
+          <div class="status-pill" id="modelStatus">Loading model</div>
+        </div>
+
+        <div class="tool-grid">
+          <section class="composer" aria-label="Message classifier">
+            <label for="messageInput">Message</label>
+            <textarea
+              id="messageInput"
+              spellcheck="false"
+              placeholder="Congratulations! You won a free prize. Call now..."
+            ></textarea>
+
+            <div class="control-row">
+              <label for="thresholdInput">Threshold <span id="thresholdValue">0.50</span></label>
+              <input id="thresholdInput" type="range" min="0.1" max="0.9" step="0.05" value="0.5" />
+            </div>
+
+            <button id="classifyButton" type="button">Analyze</button>
+          </section>
+
+          <section class="result-panel" aria-label="Prediction result">
+            <div class="result-topline">
+              <p class="eyebrow">Prediction</p>
+              <span class="result-badge" id="resultBadge">Waiting</span>
+            </div>
+            <div class="probability" id="probabilityValue">--</div>
+            <div class="bar-track" aria-hidden="true">
+              <div class="bar-fill" id="probabilityBar"></div>
+            </div>
+            <div class="token-strip" id="tokenStrip"></div>
+          </section>
+        </div>
+
+        <section class="metrics-panel" aria-label="Model metrics">
+          <div class="metric">
+            <span>Accuracy</span>
+            <strong id="accuracyMetric">--</strong>
+          </div>
+          <div class="metric">
+            <span>Precision</span>
+            <strong id="precisionMetric">--</strong>
+          </div>
+          <div class="metric">
+            <span>Recall</span>
+            <strong id="recallMetric">--</strong>
+          </div>
+          <div class="metric">
+            <span>F1</span>
+            <strong id="f1Metric">--</strong>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
