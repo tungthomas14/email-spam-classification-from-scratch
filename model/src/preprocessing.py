@@ -3,8 +3,6 @@ import random
 import re
 from pathlib import Path
 
-from vectorizer import build_vocabulary, texts_to_bow
-
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_DATA_PATH = PROJECT_DIR / "data" / "spam.csv"
@@ -109,31 +107,3 @@ def train_test_split(features, labels, test_size=0.2, seed=42):
         y_test.append(labels[index])
 
     return X_train, X_test, y_train, y_test
-
-
-if __name__ == "__main__":
-    texts, labels = read_data()
-    y = encode_labels(labels)
-    lowercased_texts = lowercase_texts(texts)
-    cleaned_texts = remove_punctuation_texts(lowercased_texts)
-    tokenized_texts = tokenize_texts(cleaned_texts)
-    tokenized_train, tokenized_test, y_train, y_test = train_test_split(tokenized_texts, y)
-    vocabulary = build_vocabulary(tokenized_train)
-    X_train = texts_to_bow(tokenized_train, vocabulary)
-    X_test = texts_to_bow(tokenized_test, vocabulary)
-
-    print(f"Number of samples: {len(texts)}")
-    print(f"Train samples: {len(X_train)}")
-    print(f"Test samples: {len(X_test)}")
-    print(f"Vocabulary size: {len(vocabulary)}")
-    print(f"Train Bag-of-Words shape: {len(X_train)} x {len(X_train[0])}")
-    print(f"Test Bag-of-Words shape: {len(X_test)} x {len(X_test[0])}")
-    print(f"Train spam count: {sum(y_train)}")
-    print(f"Test spam count: {sum(y_test)}")
-    print(f"First text: {texts[0]}")
-    print(f"First lowercased text: {lowercased_texts[0]}")
-    print(f"First cleaned text: {cleaned_texts[0]}")
-    print(f"First tokens: {tokenized_texts[0]}")
-    print(f"First 10 vocabulary items: {list(vocabulary.items())[:10]}")
-    print(f"First train vector first 10 values: {X_train[0][:10]}")
-    print(f"First label: {labels[0]} -> {y[0]}")
